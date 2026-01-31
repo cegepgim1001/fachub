@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Faculty Launchpad: Winter Term 2026</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome for Icons (No SVG Graphics) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Chosen Palette: Warm Neutrals & Academic Teal -->
+    <!-- Palette Logic: Backgrounds in Stone/Warm Gray (warmth/welcome), Primary Text in Slate (readability), Accents in Teal (professionalism/growth). -->
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fafaf9; /* stone-50 */
+            color: #1c1917; /* stone-900 */
+        }
+        
+        /* Chart Container Styling - MANDATORY REQUIREMENT */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px; /* Constrain width on large screens */
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px; /* Base height */
+            max-height: 350px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 320px;
+            }
+        }
+
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        }
+
+        /* Custom Range Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none; 
+            background: transparent; 
+        }
+        
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: #0d9488; /* teal-600 */
+            cursor: pointer;
+            margin-top: -8px; 
+        }
+
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #e7e5e4; /* stone-200 */
+            border-radius: 2px;
+        }
+    </style>
+    
+    <!-- Application Structure Plan: 
+         1. Hero Section: Sets the context (Winter Term 2026) and welcoming tone.
+         2. Readiness Module (Interactive Checklist): Transforms the static list of "Blackboard requirements" into an interactive "To-Do" list. This allows faculty to mentally check off tasks and see a visual progress indicator (Donut Chart), reinforcing the "Smooth Start" goal.
+         3. Expectations Dashboard (KPIs): Converts the "Professors' Expectations" list into a visual dashboard. 
+            - Satisfaction metric becomes a gauge.
+            - Time-based rules (72h) are visualized as time cards.
+            - Training is an interactive slider to let users plan their hours.
+         4. Timeline/Logistics: A simple card view for meeting schedules and attendance requirements.
+         Why this structure? The source text is a mix of a checklist and a set of standards. A dashboard approach separates "Immediate Actions" (Pre-class prep) from "Ongoing Standards" (Semester KPIs), making the information actionable rather than just readable.
+    -->
+
+    <!-- Visualization & Content Choices:
+         - Readiness Progress (Donut Chart):
+           - Goal: Organize & Motivate.
+           - Method: Chart.js Doughnut.
+           - Interaction: Clicking checkboxes updates the chart in real-time.
+           - Justification: Gamifies the preparation process, making the list of requirements feel like a completed goal rather than a chore.
+         
+         - Student Satisfaction (Gauge Chart):
+           - Goal: Inform & Emphasize.
+           - Method: Chart.js Doughnut (Half-circle).
+           - Interaction: Static target visualization.
+           - Justification: "65%" is a specific numeric target. A gauge visually establishes this as a benchmark to reach.
+         
+         - Training Tracker (Interactive Bar/Slider):
+           - Goal: Change/Plan.
+           - Method: HTML Input Range + JS update logic.
+           - Interaction: User slides to see how many hours they have completed vs. need.
+           - Justification: The "8 hours" requirement is cumulative. An interactive element helps visualize the gap.
+         
+         - Icons (FontAwesome): Used to replace bullets for visual engagement (No SVG files).
+    -->
+
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+</head>
+<body class="bg-stone-50 min-h-screen flex flex-col">
+
+    <!-- Header / Navigation -->
+    <header class="bg-white border-b border-stone-200 sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <i class="fa-solid fa-university text-teal-600 text-xl"></i>
+                <h1 class="text-xl font-bold text-stone-800 tracking-tight">Faculty<span class="text-teal-600">Hub</span> <span class="text-stone-400 font-light">| Winter 2026</span></h1>
+            </div>
+            <nav class="hidden md:flex space-x-8 text-sm font-medium text-stone-500">
+                <a href="#hero" class="hover:text-teal-600 transition-colors">Overview</a>
+                <a href="#readiness" class="hover:text-teal-600 transition-colors">Start-up Checklist</a>
+                <a href="#standards" class="hover:text-teal-600 transition-colors">Standards</a>
+            </nav>
+            <div class="text-xs text-stone-400 font-mono hidden sm:block">
+                Start Date: Feb 02, 2026
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+
+        <!-- Section 1: Hero & Context -->
+        <section id="hero" class="bg-white rounded-2xl p-8 card-shadow border-l-4 border-teal-500">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                <div>
+                    <span class="inline-block px-3 py-1 bg-teal-50 text-teal-700 text-xs font-bold rounded-full mb-3 uppercase tracking-wider">Announcement</span>
+                    <h2 class="text-3xl font-bold text-stone-800 mb-2">Welcome to the Winter Term</h2>
+                    <p class="text-stone-600 max-w-2xl text-lg leading-relaxed">
+                        We extend a special welcome to our new faculty members. As classes begin on <strong>Monday, February 2nd, 2026</strong>, we are systematizing our procedures to highlight the good work you are already doing and ensure student engagement from day one.
+                    </p>
+                </div>
+                <div class="hidden md:block text-right">
+                    <div class="text-5xl font-bold text-stone-200">2026</div>
+                    <div class="text-teal-600 font-medium uppercase tracking-widest text-sm">Winter Term</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Blackboard Readiness (Interactive Checklist) -->
+        <!-- Context: This section helps faculty prepare their LMS shells before the first class. -->
+        <section id="readiness" class="scroll-mt-20">
+            <div class="mb-6">
+                <h3 class="text-2xl font-bold text-stone-800">Blackboard Readiness Checklist</h3>
+                <p class="text-stone-500 mt-2">Ensure these items are live in your Blackboard shell before the first session to guarantee a smooth start.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Checklist Items -->
+                <div class="lg:col-span-2 bg-white rounded-2xl p-6 card-shadow">
+                    <div class="space-y-4" id="checklist-container">
+                        <!-- Checkbox Item 1 -->
+                        <div class="flex items-start p-3 hover:bg-stone-50 rounded-lg transition-colors cursor-pointer" onclick="toggleCheck('item1')">
+                            <div class="flex items-center h-6">
+                                <input id="item1" type="checkbox" class="w-5 h-5 text-teal-600 border-stone-300 rounded focus:ring-teal-500 cursor-pointer checklist-item">
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <label for="item1" class="font-medium text-stone-800 cursor-pointer">Professor Bio</label>
+                                <p class="text-stone-500">A few lines about you to introduce yourself to the class.</p>
+                            </div>
+                        </div>
+                        <!-- Checkbox Item 2 -->
+                        <div class="flex items-start p-3 hover:bg-stone-50 rounded-lg transition-colors cursor-pointer" onclick="toggleCheck('item2')">
+                            <div class="flex items-center h-6">
+                                <input id="item2" type="checkbox" class="w-5 h-5 text-teal-600 border-stone-300 rounded focus:ring-teal-500 cursor-pointer checklist-item">
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <label for="item2" class="font-medium text-stone-800 cursor-pointer">Welcome Announcement</label>
+                                <p class="text-stone-500">A visible post welcoming students to the course.</p>
+                            </div>
+                        </div>
+                        <!-- Checkbox Item 3 -->
+                        <div class="flex items-start p-3 hover:bg-stone-50 rounded-lg transition-colors cursor-pointer" onclick="toggleCheck('item3')">
+                            <div class="flex items-center h-6">
+                                <input id="item3" type="checkbox" class="w-5 h-5 text-teal-600 border-stone-300 rounded focus:ring-teal-500 cursor-pointer checklist-item">
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <label for="item3" class="font-medium text-stone-800 cursor-pointer">Initial Session Materials</label>
+                                <p class="text-stone-500">Upload materials for at least the first two sessions.</p>
+                            </div>
+                        </div>
+                        <!-- Checkbox Item 4 -->
+                        <div class="flex items-start p-3 hover:bg-stone-50 rounded-lg transition-colors cursor-pointer" onclick="toggleCheck('item4')">
+                            <div class="flex items-center h-6">
+                                <input id="item4" type="checkbox" class="w-5 h-5 text-teal-600 border-stone-300 rounded focus:ring-teal-500 cursor-pointer checklist-item">
+                            </div>
+                            <div class="ml-3 text-sm">
+                                <label for="item4" class="font-medium text-stone-800 cursor-pointer">Course Syllabus</label>
+                                <p class="text-stone-500">Review syllabi and e-textbook to confirm correctness.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Progress Visualization -->
+                <div class="bg-white rounded-2xl p-6 card-shadow flex flex-col items-center justify-center text-center">
+                    <h4 class="text-sm font-semibold text-stone-400 uppercase tracking-wider mb-4">Readiness Score</h4>
+                    <div class="chart-container">
+                        <canvas id="readinessChart"></canvas>
+                    </div>
+                    <p id="readiness-text" class="mt-4 text-stone-600 font-medium">0% Ready</p>
+                    <p class="text-xs text-stone-400 mt-1">Check items to update</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 3: Faculty Standards Dashboard -->
+        <!-- Context: Visualizing the KPI requirements for faculty members to maintain quality and consistency. -->
+        <section id="standards" class="scroll-mt-20">
+            <div class="mb-6 flex flex-col md:flex-row md:items-end justify-between">
+                <div>
+                    <h3 class="text-2xl font-bold text-stone-800">Faculty Standards & Expectations</h3>
+                    <p class="text-stone-500 mt-2">Key performance indicators to increase student engagement.</p>
+                </div>
+            </div>
+
+            <!-- Dashboard Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                
+                <!-- KPI 1: Student Satisfaction -->
+                <div class="bg-white rounded-xl p-6 card-shadow lg:col-span-2 flex flex-col md:flex-row items-center">
+                    <div class="flex-1 pr-0 md:pr-6 mb-4 md:mb-0">
+                        <div class="flex items-center space-x-2 mb-2">
+                            <i class="fa-solid fa-face-smile text-teal-500"></i>
+                            <h4 class="font-bold text-stone-700">Student Satisfaction</h4>
+                        </div>
+                        <p class="text-sm text-stone-500 mb-4">Target for satisfaction with teaching methods.</p>
+                        <div class="text-4xl font-bold text-stone-800">> 65%</div>
+                        <div class="text-xs text-teal-600 font-medium mt-1">Goal Metric</div>
+                    </div>
+                    <div class="w-full md:w-1/2 flex justify-center">
+                        <div class="chart-container" style="height: 160px; max-height: 160px;">
+                            <canvas id="satisfactionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI 2: The 72-Hour Rule -->
+                <div class="bg-white rounded-xl p-6 card-shadow border-t-4 border-amber-400">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fa-solid fa-clock text-amber-500"></i>
+                        <h4 class="font-bold text-stone-700">72-Hour Rule</h4>
+                    </div>
+                    <ul class="space-y-3 text-sm text-stone-600">
+                        <li class="flex items-start">
+                            <i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>
+                            <span>Post grades in Blackboard & SIS</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa-solid fa-check text-green-500 mt-1 mr-2"></i>
+                            <span>Complete moderation forms (Blackboard & SharePoint)</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- KPI 3: Engagement & Ops -->
+                <div class="bg-white rounded-xl p-6 card-shadow border-t-4 border-indigo-400">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fa-solid fa-clipboard-check text-indigo-500"></i>
+                        <h4 class="font-bold text-stone-700">Daily Ops</h4>
+                    </div>
+                    <ul class="space-y-3 text-sm text-stone-600">
+                        <li class="flex items-start">
+                            <i class="fa-solid fa-user-check text-indigo-400 mt-1 mr-2"></i>
+                            <span>Mark attendance <strong>every session</strong></span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fa-solid fa-list-check text-indigo-400 mt-1 mr-2"></i>
+                            <span>Use rubrics & constructive feedback</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- KPI 4: Training Hours (Interactive) -->
+                <div class="bg-white rounded-xl p-6 card-shadow lg:col-span-2">
+                    <div class="flex justify-between items-center mb-4">
+                        <div class="flex items-center space-x-2">
+                            <i class="fa-solid fa-graduation-cap text-teal-600"></i>
+                            <h4 class="font-bold text-stone-700">Annual Training Goal</h4>
+                        </div>
+                        <span class="text-xs bg-stone-100 text-stone-500 px-2 py-1 rounded">Interactive Planner</span>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <div class="flex justify-between text-sm mb-2">
+                            <span class="text-stone-500">Completed</span>
+                            <span class="font-bold text-stone-800"><span id="training-val">0</span> / 8 Hours</span>
+                        </div>
+                        <input type="range" min="0" max="8" value="0" step="0.5" id="training-slider" class="w-full">
+                        <div class="flex justify-between text-xs text-stone-400 mt-1">
+                            <span>0h</span>
+                            <span>4h</span>
+                            <span>8h</span>
+                        </div>
+                    </div>
+                    
+                    <div id="training-message" class="p-3 bg-stone-50 rounded-lg text-sm text-stone-600 border border-stone-100">
+                        Use the slider to track your progress. 8 hours per year are expected.
+                    </div>
+                </div>
+
+                 <!-- KPI 5: Meetings -->
+                 <div class="bg-white rounded-xl p-6 card-shadow lg:col-span-2 flex flex-col justify-center">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <i class="fa-solid fa-users text-teal-600"></i>
+                        <h4 class="font-bold text-stone-700">Coordination Meetings</h4>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 text-center">
+                        <div class="p-3 bg-stone-50 rounded-lg border border-stone-100">
+                            <div class="text-xs text-stone-400 uppercase">Start</div>
+                            <div class="font-bold text-stone-700">Pre-Term</div>
+                        </div>
+                        <div class="p-3 bg-stone-50 rounded-lg border border-stone-100">
+                            <div class="text-xs text-stone-400 uppercase">Middle</div>
+                            <div class="font-bold text-stone-700">Mid-Term</div>
+                        </div>
+                        <div class="p-3 bg-stone-50 rounded-lg border border-stone-100">
+                            <div class="text-xs text-stone-400 uppercase">End</div>
+                            <div class="font-bold text-stone-700">End-Term</div>
+                        </div>
+                    </div>
+                    <p class="text-xs text-center text-stone-400 mt-3">3 mandatory meetings per semester</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-stone-800 text-stone-400 py-8 mt-12">
+        <div class="max-w-6xl mx-auto px-4 text-center">
+            <p class="text-sm">Academic Administration &copy; 2026</p>
+            <p class="text-xs mt-2 text-stone-600">Prepared for Faculty Orientation</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // --- State Management ---
+        const state = {
+            checklist: {
+                item1: false,
+                item2: false,
+                item3: false,
+                item4: false
+            },
+            trainingHours: 0
+        };
+
+        // --- Chart.js Initialization ---
+        
+        // 1. Readiness Donut Chart
+        const ctxReadiness = document.getElementById('readinessChart').getContext('2d');
+        const readinessChart = new Chart(ctxReadiness, {
+            type: 'doughnut',
+            data: {
+                labels: ['Completed', 'Pending'],
+                datasets: [{
+                    data: [0, 4],
+                    backgroundColor: ['#0d9488', '#e7e5e4'], // teal-600, stone-200
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '75%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: false }
+                }
+            }
+        });
+
+        // 2. Student Satisfaction Gauge (Half Doughnut)
+        const ctxSatisfaction = document.getElementById('satisfactionChart').getContext('2d');
+        const satisfactionChart = new Chart(ctxSatisfaction, {
+            type: 'doughnut',
+            data: {
+                labels: ['Goal', 'Gap'],
+                datasets: [{
+                    data: [65, 35],
+                    backgroundColor: ['#14b8a6', '#f5f5f4'], // teal-500, stone-100
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                rotation: -90,
+                circumference: 180,
+                cutout: '70%',
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { 
+                        callbacks: {
+                            label: function(context) {
+                                return context.label + ': ' + context.raw + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // --- Interaction Logic ---
+
+        // Checklist Toggle Function
+        function toggleCheck(itemId) {
+            // Update state
+            state.checklist[itemId] = !state.checklist[itemId];
+            
+            // Sync UI checkbox if function called from div click
+            const checkbox = document.getElementById(itemId);
+            checkbox.checked = state.checklist[itemId];
+
+            // Calculate progress
+            const totalItems = 4;
+            const completedItems = Object.values(state.checklist).filter(Boolean).length;
+            const percentage = Math.round((completedItems / totalItems) * 100);
+
+            // Update Text
+            const textEl = document.getElementById('readiness-text');
+            textEl.innerText = `${percentage}% Ready`;
+            
+            if(percentage === 100) {
+                textEl.classList.add('text-teal-600');
+                textEl.innerText = "100% Ready - Good to go!";
+            } else {
+                textEl.classList.remove('text-teal-600');
+            }
+
+            // Update Chart
+            readinessChart.data.datasets[0].data = [completedItems, totalItems - completedItems];
+            readinessChart.update();
+        }
+
+        // Attach event listeners to checkboxes specifically (to handle direct clicks vs div clicks)
+        document.querySelectorAll('.checklist-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.stopPropagation(); // Prevent double triggering from parent div
+                toggleCheck(e.target.id);
+            });
+        });
+
+        // Training Slider Logic
+        const slider = document.getElementById('training-slider');
+        const valDisplay = document.getElementById('training-val');
+        const msgDisplay = document.getElementById('training-message');
+
+        slider.addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            state.trainingHours = val;
+            valDisplay.innerText = val;
+
+            // Dynamic Feedback Message
+            if (val === 0) {
+                msgDisplay.innerText = "Use the slider to track your progress. 8 hours per year are expected.";
+                msgDisplay.className = "p-3 bg-stone-50 rounded-lg text-sm text-stone-600 border border-stone-100";
+            } else if (val < 8) {
+                const remaining = 8 - val;
+                msgDisplay.innerText = `Great start! You need ${remaining} more hours to meet the yearly goal.`;
+                msgDisplay.className = "p-3 bg-amber-50 rounded-lg text-sm text-amber-700 border border-amber-100";
+            } else {
+                msgDisplay.innerText = "Excellent! You have met the annual training requirement.";
+                msgDisplay.className = "p-3 bg-teal-50 rounded-lg text-sm text-teal-700 border border-teal-100";
+            }
+        });
+
+    </script>
+</body>
+</html>
